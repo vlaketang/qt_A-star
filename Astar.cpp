@@ -4,13 +4,14 @@
 Astar::Astar(void)
 {
 
-    openList = map<STATE_POINT*,int>();
-    closeList = map<STATE_POINT*,int>();
-    obstacleList = map<STATE_POINT*,int>();
+    openList = map<STATE_POINT*,int,cmp_key>();
+    closeList = map<STATE_POINT*,int,cmp_key>();
+    obstacleList = map<STATE_POINT*,int,cmp_key>();
     m_direction.push_back(UP);
     m_direction.push_back(DOWN);
     m_direction.push_back(LEFT);
     m_direction.push_back(RIGHT);
+    stepAll = 0;
 }
 
 //len:内部空间的大小
@@ -106,7 +107,7 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
 Astar::~Astar(void)
 {
 
-	map<STATE_POINT*,int>::iterator it = openList.begin();
+	map<STATE_POINT*,int,cmp_key>::iterator it = openList.begin();
 	while(it!=openList.end())
 	{
 		if(it->first)
@@ -143,7 +144,7 @@ void Astar::AddtoObstacleList(STATE_POINT* point)
 STATE_POINT* Astar::atOpenList(STATE_POINT* point)
 {
     int runtime = 0;
-    map<STATE_POINT*,int>::iterator it = openList.begin();
+    map<STATE_POINT*,int,cmp_key>::iterator it = openList.begin();
     for(;it != openList.end();++it)
     {
         runtime++;
@@ -159,7 +160,7 @@ STATE_POINT* Astar::atOpenList(STATE_POINT* point)
 STATE_POINT* Astar::atCloseList(STATE_POINT* point)
 {
     int runtime = 0;
-    map<STATE_POINT*,int>::iterator it = closeList.begin();
+    map<STATE_POINT*,int,cmp_key>::iterator it = closeList.begin();
     for(;it != closeList.end();++it)
     {
         runtime++;
@@ -173,7 +174,7 @@ STATE_POINT* Astar::atCloseList(STATE_POINT* point)
 STATE_POINT* Astar::atObstacleList(STATE_POINT* point)
 {
     int runtime = 0;
-    map<STATE_POINT*,int>::iterator it = obstacleList.begin();
+    map<STATE_POINT*,int,cmp_key>::iterator it = obstacleList.begin();
     for(;it != obstacleList.end();++it)
     {
         runtime++;
@@ -238,6 +239,7 @@ int Astar::runStepOne(STATE_POINT* current,STATE_POINT* nextpoint,DIRECTION dire
 {
     nextpoint->x = current->x;
     nextpoint->y = current->y;
+    nextpoint->step = this->stepAll++;
     switch (direction)
     {
     case UP:

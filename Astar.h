@@ -18,16 +18,25 @@ typedef struct state{
     int G;
     int H;
     int step;
-    bool operator<(const state& other)
-    {
-		printf("inster--------------------\n");
-        return this->F < other.F;
-    }
     bool operator==(const state& other)
     {
         return x==other.x && y==other.y;
     }
 }STATE_POINT;
+struct cmp_key
+{
+    bool operator()(const POINT* k1, const POINT* k2)const
+    {
+        if(k1->F < k2->F)
+            return true;
+        if(k1->F == k2->F && k1->step > k2->step)
+            return true;
+        return false;
+        
+    }
+};
+#define (map<STATE_POINT*,int,cmp_key>) MY_SORT_MAP
+#define SORT_MAP
 
 typedef enum direction{
     UP,
@@ -50,8 +59,9 @@ public:
 
     STATE_POINT* FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint);
 private:
-    map<STATE_POINT*,int> openList,closeList,obstacleList;
+    MY_SORT_MAP openList,closeList,obstacleList;
     int m_step;
+    int stepAll;
     int side_len;
     vector<DIRECTION> m_direction;
     STATE_POINT* destPoint;
