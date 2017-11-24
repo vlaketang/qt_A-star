@@ -18,15 +18,35 @@ typedef struct state{
     int G;
     int H;
     int step;
+	char buffn2[1000]; //²âÊÔ
+	char buffn3[6000]; //²âÊÔ
+	char buffn4[4000]; //²âÊÔ
+	char buffn5[5000]; //²âÊÔ
+	char buffn6[5000]; //²âÊÔ
+	char buffn7[5000]; //²âÊÔ
+	char buffc4[5000]; //²âÊÔ
+	char buffc5[5000]; //²âÊÔ
+	char buffc6[5000]; //²âÊÔ
+	char buffc7[5000]; //²âÊÔ
+	char buffb4[5000]; //²âÊÔ
+	char buffb5[5000]; //²âÊÔ
+	char buffb6[5000]; //²âÊÔ
+	char buffab7[5000]; //²âÊÔ
+	char buffa4[5000]; //²âÊÔ
+	char buffa5[5000]; //²âÊÔ
+	char buffa6[5000]; //²âÊÔ
+	char buffa7[5000]; //²âÊÔ
     bool operator==(const state& other)
     {
         return x==other.x && y==other.y;
     }
 }STATE_POINT;
+
 struct cmp_key
 {
-    bool operator()(const POINT* k1, const POINT* k2)const
+    bool operator()(const STATE_POINT* k1, const STATE_POINT* k2)const
     {
+
         if(k1->F < k2->F)
             return true;
         if(k1->F == k2->F && k1->step > k2->step)
@@ -35,7 +55,7 @@ struct cmp_key
         
     }
 };
-#define (map<STATE_POINT*,int,cmp_key>) MY_SORT_MAP
+#define MY_SORT_MAP (map<STATE_POINT*,int,cmp_key>) 
 #define SORT_MAP
 
 typedef enum direction{
@@ -54,12 +74,14 @@ public:
     void setSideLen(int len){this->side_len = len;}
     void setOutWall(int len);//no use
     void AddtoObstacleList(STATE_POINT* point);
-
+	void reset();
     STATE_POINT* createPoint(int x,int y,STATE_POINT* parent,bool move);
 
     STATE_POINT* FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint);
 private:
-    MY_SORT_MAP openList,closeList,obstacleList;
+    MY_SORT_MAP* openList;
+	map<STATE_POINT*,int> closeList;
+	map<STATE_POINT*,int> obstacleList;
     int m_step;
     int stepAll;
     int side_len;
@@ -79,7 +101,7 @@ typedef struct point
 {
     int x;
     int y;
-}POINT;
+}POINT_INT;
 
 class TestAstar
 {
@@ -91,7 +113,7 @@ public:
 private:
     void show();
     Astar* star;
-    POINT start,direction;
+    POINT_INT start,direction;
 };
 
 #endif // ASTAR_H

@@ -14,19 +14,19 @@
    <string>Qt_Astar</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
      <widget class="CentFrom" name="widget" native="true">
       <property name="minimumSize">
        <size>
-        <width>701</width>
-        <height>701</height>
+        <width>801</width>
+        <height>801</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>701</width>
-        <height>701</height>
+        <width>801</width>
+        <height>801</height>
        </size>
       </property>
      </widget>
@@ -34,70 +34,148 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>选择格子</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="comboBox_side">
+          <property name="currentText">
+           <string>40x40</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>5x5</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>7x7</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>8x8</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>9x9</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>10x10</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>15x15</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>20x20</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>25x25</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>30x30</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>40x40</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>50x50</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>80x80</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
          <widget class="QPushButton" name="pushButton_selectstart">
           <property name="text">
            <string>选择起点</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_selectwall">
-          <property name="text">
-           <string>选择障碍</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
+        <item row="1" column="1">
          <widget class="QPushButton" name="pushButton_selectend">
           <property name="text">
            <string>选择终点</string>
           </property>
          </widget>
         </item>
-        <item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="pushButton_selectwall">
+          <property name="text">
+           <string>选择障碍</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pushButton_reset">
+          <property name="text">
+           <string>重置</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
          <widget class="QPushButton" name="pushButton_start">
           <property name="text">
            <string>开始</string>
           </property>
          </widget>
         </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="pushButton_stop">
+          <property name="text">
+           <string>停止</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_reset">
-        <property name="text">
-         <string>重置</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_time">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;00:00:00&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>用时：</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_time">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;00:00:00&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <spacer name="verticalSpacer">

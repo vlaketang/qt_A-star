@@ -4,9 +4,9 @@
 Astar::Astar(void)
 {
 
-    openList = map<STATE_POINT*,int,cmp_key>();
-    closeList = map<STATE_POINT*,int,cmp_key>();
-    obstacleList = map<STATE_POINT*,int,cmp_key>();
+    openList = new MY_SORT_MAP();
+    closeList = map<STATE_POINT*,int>();
+    obstacleList = map<STATE_POINT*,int>();
     m_direction.push_back(UP);
     m_direction.push_back(DOWN);
     m_direction.push_back(LEFT);
@@ -50,13 +50,14 @@ STATE_POINT* Astar::createPoint(int x,int y,STATE_POINT* parent, bool move)
     start->x = x;
     start->y = y;
     start->parent = parent;
+	start->moveabel = move;
     return start;
 }
 
 STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
 {
     this->destPoint = destPoint;
-    openList.insert(make_pair(startPoint,0));
+    openList->insert(make_pair(startPoint,0));
     int runtime = 0;
     while(1)
     {
@@ -76,13 +77,13 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
             printf("not find :%d\n",runtime);
             return NULL;
         }
-		printf("run time %d\n",runtime);
+		//printf("run time %d\n",runtime);
         vector<STATE_POINT*> enablePoint = vector<STATE_POINT*>();
         runStepOne(enablePoint,pointMinF,runtime);
         vector<STATE_POINT*>::iterator it = enablePoint.begin();
         for(;it != enablePoint.end();++it)
         {
-            if(!atCloseList(*it) && !atObstacleList(*it))
+            if(!atCloseList(*it))
             {
                 STATE_POINT* point = atOpenList(*it);
                 if(point && point->G > (*it)->G + m_step)
@@ -93,12 +94,13 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
                     point->F = point->G + point->H;
 
                 }
-                openList.insert(make_pair(*it,0));
+                openList->insert(make_pair(*it,0));
 
-            }else
-            {
-                closeList.insert(make_pair(*it,0));
             }
+			//else
+   //         {
+   //             closeList.insert(make_pair(*it,0));
+   //         }
         }
         closeList.insert(make_pair(pointMinF,0));
     }
@@ -107,16 +109,29 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
 Astar::~Astar(void)
 {
 
-	map<STATE_POINT*,int,cmp_key>::iterator it = openList.begin();
-	while(it!=openList.end())
+	reset();
+
+}
+
+void Astar::reset()
+{
+	printf("reset list\n");
+	map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
+	while(it!=openList->end())
 	{
 		if(it->first)
+		{
+			printf("delete  status\n");
 			delete it->first;
+		}
 		it++;
 	}
-	openList.clear();
+	openList->clear();
 
+	delete openList;
+	openList = new MY_SORT_MAP();
 	it = closeList.begin();
+
 	while(it!=closeList.end())
 	{
 		if(it->first)
@@ -135,56 +150,58 @@ Astar::~Astar(void)
 	obstacleList.clear();
 
 }
-
 void Astar::AddtoObstacleList(STATE_POINT* point)
 {
+	//printf("add point to obstacle");
     obstacleList.insert(make_pair(point,0));
 }
 
 STATE_POINT* Astar::atOpenList(STATE_POINT* point)
 {
     int runtime = 0;
-    map<STATE_POINT*,int,cmp_key>::iterator it = openList.begin();
-    for(;it != openList.end();++it)
+    map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
+    for(;it != openList->end();++it)
     {
         runtime++;
         if(*point == *(it->first))
         {
-			printf("openlist have:%d atOpenList echo search runtime:%d\n",openList.size(),runtime);
+			//printf("openlist have:%d find OpenList echo search runtime:%d\n",openList->size(),runtime);
             return it->first;
         }
     }
-	printf("openlist have:%d atOpenList echo search runtime:%d\n",openList.size(),runtime);
+	//printf("openlist have:%d at OpenList echo search runtime:%d\n",openList->size(),runtime);
     return NULL;
 }
 STATE_POINT* Astar::atCloseList(STATE_POINT* point)
 {
     int runtime = 0;
-    map<STATE_POINT*,int,cmp_key>::iterator it = closeList.begin();
+    map<STATE_POINT*,int>::iterator it = closeList.begin();
     for(;it != closeList.end();++it)
     {
         runtime++;
         if(*point == *(it->first))
         {
+			//printf("closeList have:%d find closeList echo search runtime:%d\n",closeList.size(),runtime);
             return it->first;
         }
     }
+	//printf("closeList have:%d at closeList echo search runtime:%d\n",closeList.size(),runtime);
     return NULL;
 }
 STATE_POINT* Astar::atObstacleList(STATE_POINT* point)
 {
     int runtime = 0;
-    map<STATE_POINT*,int,cmp_key>::iterator it = obstacleList.begin();
+    map<STATE_POINT*,int>::iterator it = obstacleList.begin();
     for(;it != obstacleList.end();++it)
     {
         runtime++;
         if(*point == *(it->first))
         {
-
+			//printf("ObstacleList have:%d find ObstacleList echo search runtime:%d\n",obstacleList.size(),runtime);
             return it->first;
         }
     }
-
+	//printf("ObstacleList have:%d at ObstacleList echo search runtime:%d\n",obstacleList.size(),runtime);
     return NULL;
 
 }
@@ -214,8 +231,11 @@ STATE_POINT* Astar::getMinFOpenlist()
 	printf("\n runtime:%d minF:%d\n",runtime,minF->F);
     return minF;
 #else
-    STATE_POINT* min = openList.begin()->first;
-    openList.erase(openList.begin());
+	map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
+
+	printf("get MinF\n");
+    STATE_POINT* min = openList->begin()->first;
+    openList->erase(openList->begin());
     return min;
 
 #endif
@@ -224,6 +244,7 @@ void Astar::runStepOne(vector<STATE_POINT*>& enablePoint,STATE_POINT* current,in
 {
     for(int i = 0 ;i < m_direction.size();++i)
     {
+
         STATE_POINT* point = new STATE_POINT;
         point->step = step;
         int ret =  runStepOne(current,point,m_direction.at(i));
@@ -276,7 +297,7 @@ int Astar::hanmanH(STATE_POINT& nowPoint)
 {
     int x = abs(nowPoint.x - destPoint->x);
     int y = abs(nowPoint.y - destPoint->y);
-	printf("H=%d+%d\n",x,y);
+	//printf("H=%d+%d\n",x,y);
     return x+y;
 }
 
@@ -300,7 +321,7 @@ char outwall[SIDE_LEN][SIDE_LEN] ={
 };
 
 
-POINT gwall[] = {{1,2},{2,2},{3,4},{3,3},{3,9},{4,7},{9,9},{4,10},{5,10},{6,10},{7,10},{8,10}};
+POINT_INT gwall[] = {{1,2},{2,2},{3,4},{3,3},{3,9},{4,7},{9,9},{4,10},{5,10},{6,10},{7,10},{8,10}};
 
 
 TestAstar::TestAstar()
@@ -321,7 +342,7 @@ TestAstar::TestAstar()
     outwall[start.x][start.y] = 'S';
     outwall[direction.x][direction.y] = 'D';
 
-    for(int i = 0;i<sizeof(gwall)/sizeof(POINT);i++)
+    for(int i = 0;i<sizeof(gwall)/sizeof(POINT_INT);i++)
     {
         STATE_POINT* point = star->createPoint(gwall[i].x,gwall[i].y, NULL,false);
         star->AddtoObstacleList(point);

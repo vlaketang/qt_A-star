@@ -7,11 +7,6 @@
 #include "Astar.h"
 
 
-#define BODY_SIZE 20
-#define STEP_SIZE 20
-#define SIDE_LEN 700
-
-
 class WorkThread : public QThread
 {
 	Q_OBJECT
@@ -22,8 +17,8 @@ public:
 signals:
 	void sgn_result(STATE_POINT* path);
 public slots:
-	void slot_init(QList<QPoint>* wallPoint,QPoint startPoint,QPoint endPoint);
-
+	void slot_init(QList<QPoint>* wallPoint,QPoint startPoint,QPoint endPoint,int step_size,int side_len );
+	void slot_reset();
 protected:
      void run();
 
