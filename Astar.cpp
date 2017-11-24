@@ -1,6 +1,6 @@
 #include "astar.h"
 #include <stdlib.h>
-
+#include <windows.h>
 Astar::Astar(void)
 {
 
@@ -77,6 +77,7 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
             printf("not find :%d\n",runtime);
             return NULL;
         }
+		m_callback(callarg,pointMinF,MIN_F_POINT);
 		//printf("run time %d\n",runtime);
         vector<STATE_POINT*> enablePoint = vector<STATE_POINT*>();
         runStepOne(enablePoint,pointMinF,runtime);
@@ -95,6 +96,8 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
 
                 }
                 openList->insert(make_pair(*it,0));
+				m_callback(callarg,pointMinF,NEW_SEARCH_POINT);
+				Sleep(400);
 
             }
 			//else
@@ -103,6 +106,7 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
    //         }
         }
         closeList.insert(make_pair(pointMinF,0));
+		m_callback(callarg,pointMinF,CLOSE_POINT);
     }
 }
 

@@ -18,24 +18,6 @@ typedef struct state{
     int G;
     int H;
     int step;
-	char buffn2[1000]; //²âÊÔ
-	char buffn3[6000]; //²âÊÔ
-	char buffn4[4000]; //²âÊÔ
-	char buffn5[5000]; //²âÊÔ
-	char buffn6[5000]; //²âÊÔ
-	char buffn7[5000]; //²âÊÔ
-	char buffc4[5000]; //²âÊÔ
-	char buffc5[5000]; //²âÊÔ
-	char buffc6[5000]; //²âÊÔ
-	char buffc7[5000]; //²âÊÔ
-	char buffb4[5000]; //²âÊÔ
-	char buffb5[5000]; //²âÊÔ
-	char buffb6[5000]; //²âÊÔ
-	char buffab7[5000]; //²âÊÔ
-	char buffa4[5000]; //²âÊÔ
-	char buffa5[5000]; //²âÊÔ
-	char buffa6[5000]; //²âÊÔ
-	char buffa7[5000]; //²âÊÔ
     bool operator==(const state& other)
     {
         return x==other.x && y==other.y;
@@ -65,11 +47,24 @@ typedef enum direction{
     RIGHT
 }DIRECTION;
 
+
+typedef enum type{
+	NEW_SEARCH_POINT,
+	MIN_F_POINT,
+	CLOSE_POINT
+}POINT_TYPE;
+
+typedef void (* SearchCallback)(void* arg,STATE_POINT* point,POINT_TYPE type);
+
+
+
 class Astar
 {
 public:
     Astar(void);
     ~Astar(void);
+
+	void setCallback(SearchCallback callback,void* arg){ m_callback = callback;callarg = arg;}
     void setStep(int step){this->m_step = step;}
     void setSideLen(int len){this->side_len = len;}
     void setOutWall(int len);//no use
@@ -94,7 +89,8 @@ private:
     void runStepOne(vector<STATE_POINT*>& enablePoint,STATE_POINT* current,int step);
     int runStepOne(STATE_POINT* current,STATE_POINT* nextpoint,DIRECTION direction);
     int hanmanH(STATE_POINT& nowPoint);
-
+	SearchCallback m_callback;
+	void* callarg;
 };
 
 typedef struct point

@@ -45,7 +45,7 @@
         <item row="0" column="1">
          <widget class="QComboBox" name="comboBox_side">
           <property name="currentText">
-           <string>40x40</string>
+           <string>20x20</string>
           </property>
           <item>
            <property name="text">

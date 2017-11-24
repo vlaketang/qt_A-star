@@ -14,8 +14,11 @@ class WorkThread : public QThread
 public:
 	WorkThread(QObject *parent);
 	~WorkThread();
+
+	static void PointCallback(void* arg,STATE_POINT* point,POINT_TYPE type);
 signals:
 	void sgn_result(STATE_POINT* path);
+	void sgn_point(STATE_POINT point,POINT_TYPE type);
 public slots:
 	void slot_init(QList<QPoint>* wallPoint,QPoint startPoint,QPoint endPoint,int step_size,int side_len );
 	void slot_reset();

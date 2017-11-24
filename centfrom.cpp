@@ -9,18 +9,24 @@ CentFrom::CentFrom(QWidget *parent)
 	timer(new QTimer(this)),
 	m_todo(NO_USE)
 {
-	m_steplen = 20;
+	m_steplen = 40;
 	m_side = 800;
 	ui.setupUi(this);
     this->setStyleSheet("background-color:red;");
  
-    m_startPoint = QPoint(2*m_steplen,2*m_steplen);
-    m_endPoint = QPoint(4*m_steplen,4*m_steplen);
+    m_startPoint = QPoint(3*m_steplen,9*m_steplen);
+    m_endPoint = QPoint(14*m_steplen,10*m_steplen);
 
     m_wallPoint = QList<QPoint>();
     m_wayPoint = QVector<QPoint>();
+
+	OpenPoint = QVector<STATE_POINT>();
+	ClosePoint = QVector<STATE_POINT>();
     connect(this, SIGNAL(sgn_brush()), this, SLOT(update()));
 	qRegisterMetaType<STATE_POINT>("STATE_POINT");
+	qRegisterMetaType<STATE_POINT>("POINT_TYPE");
+	
+
 	setMouseTracking(true);
 }
 
@@ -68,12 +74,39 @@ void CentFrom::slot_start_findway()
 		connect(this,SIGNAL(sgn_init(QList<QPoint>* ,QPoint ,QPoint,int ,int )),thread,SLOT(slot_init(QList<QPoint>* ,QPoint ,QPoint,int,int )));
 		connect(this,SIGNAL(sgn_reset()),thread,SLOT(slot_reset()));
 		connect(thread, SIGNAL(sgn_result(STATE_POINT*)), this, SLOT(slot_result(STATE_POINT*)));
+		connect(thread, SIGNAL(sgn_point(STATE_POINT,POINT_TYPE)), this, SLOT(slot_point(STATE_POINT,POINT_TYPE)));
 	}
 	this->emit sgn_init(&m_wallPoint,m_startPoint,m_endPoint,m_steplen,m_side);
 
     thread->start();
 
 
+}
+
+void CentFrom::slot_point(STATE_POINT point ,POINT_TYPE type)
+{
+	printf("point back,x:%d,y:%d, %d\n",point.x,point.y,type);
+	switch (type)
+	{
+	case MIN_F_POINT:
+		MinFPoint = point;
+		break;
+	case NEW_SEARCH_POINT:
+		OpenPoint.append(point);
+		if(ClosePoint.contains(point))
+
+		break;
+
+	case CLOSE_POINT:
+		if(OpenPoint.contains(point))
+		{
+		}
+		ClosePoint.append(point);
+		break;
+	default:
+		break;
+	}
+	this->emit sgn_brush();
 }
 
 void CentFrom::slot_result(STATE_POINT* path)
@@ -117,6 +150,9 @@ void CentFrom::slot_reset()
 	this->emit sgn_reset();
 
     m_wayPoint.clear();
+	OpenPoint.clear();
+	ClosePoint.clear();
+	memset(&MinFPoint,0,sizeof(STATE_POINT));
 	this->emit sgn_brush();
 	this->emit sgn_time(QString("00:00:00"));
 	
@@ -189,15 +225,6 @@ void CentFrom::paintEvent(QPaintEvent *event)
         painter->drawLine(QPoint(0,i*m_steplen),QPoint(m_side,i*m_steplen));
     }
 
-    QBrush brush(QColor(0,100,100));
-    painter->setBrush(brush);
-    painter->setRenderHint(QPainter::Antialiasing);
-    for(int i=0;i<m_wallPoint.size();i++)
-    {
-        x = m_wallPoint.at(i).x();
-        y = m_wallPoint.at(i).y();
-        painter->drawRect(x,y,m_steplen,m_steplen);
-    }
     QBrush brushstart(QColor(255,0,0));
     painter->setBrush(brushstart);
     x = m_startPoint.x();
@@ -212,7 +239,7 @@ void CentFrom::paintEvent(QPaintEvent *event)
     painter->drawRect(x,y,m_steplen,m_steplen);
 
 
-    QBrush brushway(QColor(0,255,0));
+    QBrush brushway(QColor(105,139,105));
     painter->setBrush(brushway);
 
     for(int i = 0;i<m_wayPoint.size();i++)
@@ -220,12 +247,73 @@ void CentFrom::paintEvent(QPaintEvent *event)
         x=m_wayPoint[i].x();
         y = m_wayPoint[i].y();
         painter->drawRect(x,y,m_steplen,m_steplen);
+
 		QBrush brushway(QColor(0,255,0));
 		painter->setBrush(brushway);
-		painter->drawText(x,y,QString::number(i));
+		painter->drawText(x,y+(m_steplen/2),QString::number(i));
     }
 
-    //painter->drawEllipse(x,y,m_steplen,m_steplen);
+
+
+
+
+	
+    QBrush brushopen(QColor(152,251,152));
+    painter->setBrush(brushopen);
+	painter->drawRect(10*m_steplen,0,m_steplen,m_steplen);
+	for(int i=0;i<OpenPoint.size();i++)
+	{
+		x= OpenPoint[i].x;
+		y= OpenPoint[i].y;
+		painter->drawRect(x,y,m_steplen,m_steplen);
+
+		
+
+
+		QBrush brush(QColor(0,0,0));
+		painter->setBrush(brush);
+		painter->drawText(x,y+(m_steplen/3),QString::number(OpenPoint[i].F/m_steplen));
+		painter->drawText(x,y+m_steplen,QString::number(OpenPoint[i].G/m_steplen));
+		painter->drawText(x+3*(m_steplen/5),y+m_steplen,QString::number(OpenPoint[i].H/m_steplen));
+	}
+
+	QBrush brushmin(QColor(47,79,79));
+    painter->setBrush(brushmin);
+	x = MinFPoint.x;
+    y = MinFPoint.y;
+	painter->drawRect(10*m_steplen,m_steplen,m_steplen,m_steplen);
+    painter->drawRect(x,y,m_steplen,m_steplen);
+
+	//»ÒÉ«
+    QBrush brushclose(QColor(190,190,190));
+    painter->setBrush(brushclose);
+	painter->drawRect(10*m_steplen,2*m_steplen,m_steplen,m_steplen);
+	for(int i=0;i<ClosePoint.size();i++)
+	{
+		x= ClosePoint[i].x;
+		y= ClosePoint[i].y;
+		painter->drawRect(x,y,m_steplen,m_steplen);
+
+		QBrush brush(QColor(0,0,0));
+		painter->setBrush(brush);
+		painter->drawText(x,y+(m_steplen/3),QString::number(ClosePoint[i].F/m_steplen));
+		painter->drawText(x,y+m_steplen,QString::number(ClosePoint[i].G/m_steplen));
+		painter->drawText(x+3*(m_steplen/5),y+m_steplen,QString::number(ClosePoint[i].H/m_steplen));
+	}
+
+	//DarkSeaGreen4
+	QBrush brush(QColor(105,139,105));
+    painter->setBrush(brush);
+    painter->setRenderHint(QPainter::Antialiasing);
+	painter->drawRect(10*m_steplen,3*m_steplen,m_steplen,m_steplen);
+    for(int i=0;i<m_wallPoint.size();i++)
+    {
+        x = m_wallPoint.at(i).x();
+        y = m_wallPoint.at(i).y();
+        painter->drawRect(x,y,m_steplen,m_steplen);
+    }
+
+
 }
 
 void CentFrom::mouseMoveEvent(QMouseEvent * event)

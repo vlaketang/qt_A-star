@@ -48,6 +48,7 @@ public slots:
 	void slot_send_time();
 	void slot_setstepSize(const QString & text);
 	void slot_result(STATE_POINT* path);
+	void slot_point(STATE_POINT point ,POINT_TYPE type);
 protected:
 	void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -59,9 +60,19 @@ private:
     QPoint m_startPoint;
     QPoint m_endPoint;
 
-    QList<QPoint> m_wallPoint;
+	STATE_POINT MinFPoint; //当前寻路节点
+
+
+	QVector<STATE_POINT> OpenPoint; //将要寻路的节点
+
+	QVector<STATE_POINT> ClosePoint;//已寻过的节点
+	 
+
+
+
+    QList<QPoint> m_wallPoint; //障碍节点
     e_TODO m_todo;
-    QVector<QPoint> m_wayPoint;
+    QVector<QPoint> m_wayPoint; //寻路结果
 	int usetime;
 	WorkThread* thread;
 	QTimer *timer;

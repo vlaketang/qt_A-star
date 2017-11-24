@@ -4,13 +4,33 @@ WorkThread::WorkThread(QObject *parent)
 	: QThread(parent)
 {
 	star = new Astar();
-
+	star->setCallback(PointCallback,this);
 }
 
 WorkThread::~WorkThread()
 {
 
 }
+void WorkThread::PointCallback(void* arg,STATE_POINT* point,POINT_TYPE type)
+{
+	WorkThread *pObj = (WorkThread*)arg;
+
+	STATE_POINT back = {0};
+	back.x = point->x;
+
+    back.y = point->y;
+    back.moveabel= point->moveabel;
+    back.parent= point->parent;
+    back.F= point->F;
+    back.G= point->G;
+    back.H= point->H;
+    back.step= point->step;
+	pObj->emit sgn_point(back,type);
+}
+
+
+
+
 
 void WorkThread::slot_init(QList<QPoint>* wallPoint, QPoint startPoint,QPoint endPoint,int step_size,int side_len )
 {
