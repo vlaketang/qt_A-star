@@ -16,6 +16,7 @@ public:
 
 public slots:
 	void slot_set_time(QString showtime){ui.label_time->setText(showtime);}
+	void slot_enable(const QString& text);
 private:
 	Ui::Qt_AstarClass ui;
 };

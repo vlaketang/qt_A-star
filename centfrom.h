@@ -15,6 +15,8 @@ class CentFrom;
 }
 
 
+
+
 typedef enum toDo{
 	NO_USE,
     SELECT_WALL,
@@ -38,6 +40,8 @@ signals:
 	void sgn_time(QString showtime);
 	void sgn_init(QList<QPoint>* wallPoint,QPoint startPoint,QPoint endPoint,int step_size,int side_len );
 	void sgn_reset();
+	void sgn_pause(bool pause);
+	void sgn_control(CONTROL control, const QString &text);
 public slots:
     void slot_select_wall();
     void slot_select_start();
@@ -49,11 +53,17 @@ public slots:
 	void slot_setstepSize(const QString & text);
 	void slot_result(STATE_POINT* path);
 	void slot_point(STATE_POINT point ,POINT_TYPE type);
+	void slot_pause();
+	void slot_run();
+	void slot_FGH(const QString & text);
+	void slot_rate(const QString &text);
+	void slot_processess(const QString &text);
+
+
 protected:
 	void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent * event);
-
 private:
 	Ui::CentFrom ui;
     DIRECTION direct;
@@ -79,7 +89,8 @@ private:
 	bool working;
 	int m_steplen;
 	int m_side;
-
+	bool m_pause;
+	bool m_FGH;
 };
 
 #endif // CENTFROM_H

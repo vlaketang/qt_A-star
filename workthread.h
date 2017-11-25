@@ -22,6 +22,8 @@ signals:
 public slots:
 	void slot_init(QList<QPoint>* wallPoint,QPoint startPoint,QPoint endPoint,int step_size,int side_len );
 	void slot_reset();
+	void slot_pause(bool pause);
+	void slot_control(CONTROL control, const QString &text);
 protected:
      void run();
 

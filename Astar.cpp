@@ -1,6 +1,8 @@
 #include "astar.h"
 #include <stdlib.h>
 #include <windows.h>
+#include <algorithm>
+#include<functional>
 Astar::Astar(void)
 {
 
@@ -12,6 +14,9 @@ Astar::Astar(void)
     m_direction.push_back(LEFT);
     m_direction.push_back(RIGHT);
     stepAll = 0;
+	m_pause = false;
+	m_fastrate = true;
+	m_processess = false;
 }
 
 //len:内部空间的大小
@@ -53,20 +58,44 @@ STATE_POINT* Astar::createPoint(int x,int y,STATE_POINT* parent, bool move)
 	start->moveabel = move;
     return start;
 }
-
+void Astar::setControl(CONTROL type,bool enable)
+{
+	switch (type)
+	{
+	case CONTROL_RATE:
+		printf("rate:%d\n",enable);
+		m_fastrate = enable;
+		break;
+	case CONTROL_PROCESSESS:
+		printf("m_processess:%d\n",enable);
+		m_processess = enable;
+	default:
+		break;
+	}
+}
 STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
 {
     this->destPoint = destPoint;
     openList->insert(make_pair(startPoint,0));
     int runtime = 0;
+	double start = GetTickCount();  
+	
     while(1)
     {
+		while(1)
+		{
+			if(m_pause)
+				Sleep(1000);
+			else
+				break;
+		}
         runtime++;
         STATE_POINT* dpoint = atOpenList(destPoint);
 
         if(dpoint)
         {
-            printf("find runtime:%d\n",runtime);
+			double end = GetTickCount();  
+           printf("find runtime:%d,use time:%lf\n",runtime,end-start);
             return dpoint;
         }
 
@@ -74,10 +103,12 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
 
         if(!pointMinF)
         {
-            printf("not find :%d\n",runtime);
+			double end = GetTickCount(); 
+            printf("not find :%d,use:%ld\n",runtime,end-start);
             return NULL;
         }
-		m_callback(callarg,pointMinF,MIN_F_POINT);
+		if(m_processess)
+			m_callback(callarg,pointMinF,MIN_F_POINT);
 		//printf("run time %d\n",runtime);
         vector<STATE_POINT*> enablePoint = vector<STATE_POINT*>();
         runStepOne(enablePoint,pointMinF,runtime);
@@ -86,18 +117,29 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
         {
             if(!atCloseList(*it))
             {
+				//it 当前新增的节点
+				//point已经在openlist中的
                 STATE_POINT* point = atOpenList(*it);
-                if(point && point->G > (*it)->G + m_step)
+                if(point)
                 {
-                    point->parent = pointMinF;
-
-                    point->G = (*it)->G + m_step;
-                    point->F = point->G + point->H;
-
-                }
-                openList->insert(make_pair(*it,0));
-				m_callback(callarg,pointMinF,NEW_SEARCH_POINT);
-				Sleep(400);
+					if(point->G > (*it)->G)
+					{
+						//printf("change parent\n");
+						point->parent = pointMinF;
+						point->parentDirection = direction(point,point->parent);
+						point->directionico();
+						point->G = (*it)->G;
+						point->F = point->G + point->H;
+					}
+                }else
+				{
+					openList->insert(make_pair(*it,0));
+					if(m_processess)
+						m_callback(callarg,*it,NEW_SEARCH_POINT);
+					
+				}
+				if(!m_fastrate)
+					Sleep(400);
 
             }
 			//else
@@ -106,7 +148,8 @@ STATE_POINT* Astar::FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint)
    //         }
         }
         closeList.insert(make_pair(pointMinF,0));
-		m_callback(callarg,pointMinF,CLOSE_POINT);
+		if(m_processess)
+			m_callback(callarg,pointMinF,CLOSE_POINT);
     }
 }
 
@@ -119,13 +162,14 @@ Astar::~Astar(void)
 
 void Astar::reset()
 {
-	printf("reset list\n");
+	//printf("reset list\n");
+	stepAll = 0;
 	map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
 	while(it!=openList->end())
 	{
 		if(it->first)
 		{
-			printf("delete  status\n");
+			//printf("delete  status\n");
 			delete it->first;
 		}
 		it++;
@@ -162,6 +206,9 @@ void Astar::AddtoObstacleList(STATE_POINT* point)
 
 STATE_POINT* Astar::atOpenList(STATE_POINT* point)
 {
+
+
+
     int runtime = 0;
     map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
     for(;it != openList->end();++it)
@@ -237,7 +284,7 @@ STATE_POINT* Astar::getMinFOpenlist()
 #else
 	map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
 
-	printf("get MinF\n");
+	//printf("get MinF\n");
     STATE_POINT* min = openList->begin()->first;
     openList->erase(openList->begin());
     return min;
@@ -268,16 +315,24 @@ int Astar::runStepOne(STATE_POINT* current,STATE_POINT* nextpoint,DIRECTION dire
     switch (direction)
     {
     case UP:
+		nextpoint->parentDirection = DOWN;
+		nextpoint->parentDirectionicon = 'V';
         nextpoint->y -= this->m_step;
         break;
 
     case DOWN:
+		nextpoint->parentDirection = UP;
+		nextpoint->parentDirectionicon = 'A';
         nextpoint->y += this->m_step;
         break;
     case LEFT:
+		nextpoint->parentDirection = RIGHT;
+		nextpoint->parentDirectionicon = '>';
         nextpoint->x -= this->m_step;
         break;
     case RIGHT:
+		nextpoint->parentDirection = LEFT;
+		nextpoint->parentDirectionicon = '<';
         nextpoint->x += this->m_step;
         break;
     default:
@@ -304,7 +359,12 @@ int Astar::hanmanH(STATE_POINT& nowPoint)
 	//printf("H=%d+%d\n",x,y);
     return x+y;
 }
-
+DIRECTION Astar::direction(STATE_POINT* dst,STATE_POINT* src)
+{
+	int x = dst->x  - src->x;
+	int y = dst->y  - src->y;
+	return x>0?RIGHT:(x<0?LEFT:(y>0?UP:DOWN));
+}
 
 #define SIDE_LEN 14
 char outwall[SIDE_LEN][SIDE_LEN] ={
