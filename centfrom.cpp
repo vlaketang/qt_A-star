@@ -62,7 +62,10 @@ void CentFrom::slot_processess(const QString &text)
 {
 	this->emit sgn_control(CONTROL_PROCESSESS, text);
 }
-
+void CentFrom::slot_usefind(const QString &text)
+{
+	this->emit sgn_control(CONTROL_FUNCTION, text);
+}
 void CentFrom::slot_setstepSize(const QString &text)
 {
 	QString box = text.split('x').first();

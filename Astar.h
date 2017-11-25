@@ -3,6 +3,10 @@
 
 #include <map>
 #include <vector>
+#include <algorithm>
+#include <functional>
+
+
 using namespace std;
 
 typedef enum direction{
@@ -15,13 +19,15 @@ typedef enum direction{
 typedef enum Control{
 	CONTROL_FGH,
 	CONTROL_RATE,
-	CONTROL_PROCESSESS
+	CONTROL_PROCESSESS,
+	CONTROL_FUNCTION
 }CONTROL;
 
 //数据结构影响搜索速度 ,有待优化
 //1、后找到的点先找到
 //2、F值小的要先找到
-typedef struct state{
+typedef class state{
+public:
     int x;
     int y;
     bool moveabel;
@@ -60,25 +66,37 @@ typedef struct state{
 	
 	
 	}
+
 }STATE_POINT;
 
-class cmp_key
+
+class cmp_open_F_step
 {
 public:
     bool operator()(const STATE_POINT* k1, const STATE_POINT* k2)const
-    {
 
+    {
         if(k1->F < k2->F)
             return true;
         if(k1->F == k2->F && k1->step > k2->step)
             return true;
         return false;
-        
+ 
     }
 };
-#define MY_SORT_MAP (map<STATE_POINT*,int,cmp_key>) 
-#define SORT_MAP
 
+
+
+#define MY_SORT_MAP map<STATE_POINT*,int,cmp_open_F_step> 
+#define MY_SORT_MAP_IT map<STATE_POINT*,int,cmp_open_F_step>::iterator
+
+
+
+#define NORMAL_SORT_MAP map<STATE_POINT*,int> 
+#define NORMAL_SORT_MAP_IT map<STATE_POINT*,int>::iterator
+
+
+bool cmp_find(pair<STATE_POINT*,int> it, STATE_POINT* point);
 
 
 
@@ -111,14 +129,15 @@ public:
     STATE_POINT* FindWay(STATE_POINT* startPoint,STATE_POINT* destPoint);
 private:
     MY_SORT_MAP* openList;
-	map<STATE_POINT*,int> closeList;
-	map<STATE_POINT*,int> obstacleList;
+	NORMAL_SORT_MAP closeList;
+	NORMAL_SORT_MAP obstacleList;
     int m_step;
     int stepAll;
     int side_len;
 	bool m_pause;
 	bool m_fastrate;
 	bool m_processess;
+	bool m_usefunctional;
     vector<DIRECTION> m_direction;
     STATE_POINT* destPoint;
 	SearchCallback m_callback;

@@ -58,6 +58,7 @@ public slots:
 	void slot_FGH(const QString & text);
 	void slot_rate(const QString &text);
 	void slot_processess(const QString &text);
+	void slot_usefind(const QString &text);
 
 
 protected:

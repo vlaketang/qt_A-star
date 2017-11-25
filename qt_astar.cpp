@@ -17,6 +17,8 @@ Qt_Astar::Qt_Astar(QWidget *parent)
 	connect(ui.comboBox_FGH,SIGNAL(currentTextChanged(const QString &)),ui.widget,SLOT(slot_FGH(const QString &)));
 	connect(ui.comboBox_rate,SIGNAL(currentTextChanged(const QString &)),ui.widget,SLOT(slot_rate(const QString &)));
 	connect(ui.comboBox_processess,SIGNAL(currentTextChanged(const QString &)),ui.widget,SLOT(slot_processess(const QString &)));
+
+	connect(ui.comboBox_find,SIGNAL(currentTextChanged(const QString &)),ui.widget,SLOT(slot_usefind(const QString &)));
 	connect(ui.comboBox_processess,SIGNAL(currentTextChanged(const QString &)),this,SLOT(slot_enable(const QString &)));
 	connect(ui.widget,SIGNAL(sgn_time(QString)),this,SLOT(slot_set_time(QString)));
 	connect(ui.comboBox_side,SIGNAL(currentTextChanged(const QString &)),ui.widget,SLOT(slot_setstepSize(const QString &)));

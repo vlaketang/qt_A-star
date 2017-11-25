@@ -1,14 +1,22 @@
 #include "astar.h"
 #include <stdlib.h>
 #include <windows.h>
-#include <algorithm>
-#include<functional>
+
+
+bool cmp_find(pair<STATE_POINT*,int> it, STATE_POINT* point)
+{
+	if(*point == *it.first)
+		return true;
+	else
+		return false;
+};
+
 Astar::Astar(void)
 {
 
     openList = new MY_SORT_MAP();
-    closeList = map<STATE_POINT*,int>();
-    obstacleList = map<STATE_POINT*,int>();
+    closeList = NORMAL_SORT_MAP();
+    obstacleList = NORMAL_SORT_MAP();
     m_direction.push_back(UP);
     m_direction.push_back(DOWN);
     m_direction.push_back(LEFT);
@@ -17,6 +25,7 @@ Astar::Astar(void)
 	m_pause = false;
 	m_fastrate = true;
 	m_processess = false;
+	m_usefunctional = true;
 }
 
 //len:内部空间的大小
@@ -69,6 +78,12 @@ void Astar::setControl(CONTROL type,bool enable)
 	case CONTROL_PROCESSESS:
 		printf("m_processess:%d\n",enable);
 		m_processess = enable;
+		break;
+	case CONTROL_FUNCTION:
+		printf("m_usefunctional:%d\n",enable);
+		m_usefunctional = enable;
+		break;
+
 	default:
 		break;
 	}
@@ -164,7 +179,7 @@ void Astar::reset()
 {
 	//printf("reset list\n");
 	stepAll = 0;
-	map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
+	MY_SORT_MAP_IT it = openList->begin();
 	while(it!=openList->end())
 	{
 		if(it->first)
@@ -204,92 +219,114 @@ void Astar::AddtoObstacleList(STATE_POINT* point)
     obstacleList.insert(make_pair(point,0));
 }
 
+
 STATE_POINT* Astar::atOpenList(STATE_POINT* point)
 {
+	if(m_usefunctional)
+	{	
+		NORMAL_SORT_MAP_IT it;
+		it = find_if(openList->begin(),openList->end(),bind2nd(ptr_fun(cmp_find),(point)));
+		if(it != openList->end())
+		{
+			return it->first;
+		}
+		else
+			return NULL;
+	}else{
+		int runtime = 0;
+		NORMAL_SORT_MAP_IT it = openList->begin();
+		for(;it != openList->end();++it)
+		{
+			runtime++;
+			if(*point == *(it->first))
+			{
+				return it->first;
+			}
+		}
 
-
-
-    int runtime = 0;
-    map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
-    for(;it != openList->end();++it)
-    {
-        runtime++;
-        if(*point == *(it->first))
-        {
-			//printf("openlist have:%d find OpenList echo search runtime:%d\n",openList->size(),runtime);
-            return it->first;
-        }
-    }
-	//printf("openlist have:%d at OpenList echo search runtime:%d\n",openList->size(),runtime);
-    return NULL;
+		return NULL;
+	}
 }
 STATE_POINT* Astar::atCloseList(STATE_POINT* point)
 {
-    int runtime = 0;
-    map<STATE_POINT*,int>::iterator it = closeList.begin();
-    for(;it != closeList.end();++it)
-    {
-        runtime++;
-        if(*point == *(it->first))
-        {
-			//printf("closeList have:%d find closeList echo search runtime:%d\n",closeList.size(),runtime);
-            return it->first;
-        }
-    }
-	//printf("closeList have:%d at closeList echo search runtime:%d\n",closeList.size(),runtime);
-    return NULL;
+
+	if(m_usefunctional)
+	{	
+		NORMAL_SORT_MAP_IT it;
+		it = find_if(closeList.begin(),closeList.end(),bind2nd(ptr_fun(cmp_find),point));
+		if(it != closeList.end())
+		{
+			//printf(" atCloseListfind if,find\n");
+			return (*it).first;
+		}
+		else
+		{
+			//printf("atCloseList find if,not find\n");
+			return NULL;
+		}
+	}
+	else
+	{
+		int runtime = 0;
+		NORMAL_SORT_MAP_IT it = closeList.begin();
+		for(;it != closeList.end();++it)
+		{
+			runtime++;
+			if(*point == *(it->first))
+			{
+				//printf("closeList have:%d find closeList echo search runtime:%d\n",closeList.size(),runtime);
+				return it->first;
+			}
+		}
+		//printf("closeList have:%d at closeList echo search runtime:%d\n",closeList.size(),runtime);
+		return NULL;
+	}
 }
 STATE_POINT* Astar::atObstacleList(STATE_POINT* point)
 {
-    int runtime = 0;
-    map<STATE_POINT*,int>::iterator it = obstacleList.begin();
-    for(;it != obstacleList.end();++it)
-    {
-        runtime++;
-        if(*point == *(it->first))
-        {
-			//printf("ObstacleList have:%d find ObstacleList echo search runtime:%d\n",obstacleList.size(),runtime);
-            return it->first;
-        }
-    }
-	//printf("ObstacleList have:%d at ObstacleList echo search runtime:%d\n",obstacleList.size(),runtime);
-    return NULL;
+	if(m_usefunctional)
+	{
+		NORMAL_SORT_MAP_IT it;
+		it = find_if(obstacleList.begin(),obstacleList.end(),bind2nd(ptr_fun(cmp_find),point));
+		if(it != obstacleList.end())
+		{
+			//printf(" atObstacleList if,find\n");
+			return (*it).first;
+		}
+		else
+		{
+			//printf("atObstacleList find if,not find\n");
+			return NULL;
+		}
+	}else
+	{
+		int runtime = 0;
+		NORMAL_SORT_MAP_IT it = obstacleList.begin();
+		for(;it != obstacleList.end();++it)
+		{
+			runtime++;
+			if(*point == *(it->first))
+			{
+				//printf("ObstacleList have:%d find ObstacleList echo search runtime:%d\n",obstacleList.size(),runtime);
+				return it->first;
+			}
+		}
+		//printf("ObstacleList have:%d at ObstacleList echo search runtime:%d\n",obstacleList.size(),runtime);
+		return NULL;
+	}
 
 }
 STATE_POINT* Astar::getMinFOpenlist()
 {
 
-#ifndef SORT_MAP
-    if(openList.size() == 0)
-        return NULL;
-    int runtime = 0;
-    map<STATE_POINT*,int>::iterator it = openList.begin();
-
-    STATE_POINT* minF = it->first;
-    map<STATE_POINT*,int>::iterator min = it;
-    for(;it != openList.end();)
-    {
-		printf("%d ",it->first->F);
-        runtime++;
-        if(minF->F >= it->first->F)
-        {
-            minF = it->first;
-            min = it;
-        }
-        it++;
-    }
-    openList.erase(min);
-	printf("\n runtime:%d minF:%d\n",runtime,minF->F);
-    return minF;
-#else
-	map<STATE_POINT*,int,cmp_key>::iterator it = openList->begin();
+	MY_SORT_MAP_IT it = openList->begin();
 
 	//printf("get MinF\n");
     STATE_POINT* min = openList->begin()->first;
     openList->erase(openList->begin());
     return min;
 
-#endif
+
 }
 void Astar::runStepOne(vector<STATE_POINT*>& enablePoint,STATE_POINT* current,int step)
 {
